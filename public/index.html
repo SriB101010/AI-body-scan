@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Fitting Room — AI Body Measurement & 3D Fit Profile</title>
+  <meta name="description" content="Create your personalized fit profile and get accurate body measurements for perfect-fitting garments using our guided AI body scan.">
+  
+  <!-- Premium Outfit Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="index.css">
+  
+  <!-- Three.js Library & OrbitControls via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  
+  <!-- MediaPipe Pose & Camera Utils via CDN for Real-Time Pose Landmarker Validation -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <!-- Main Navigation Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <div class="logo">
+        <span class="logo-accent">U</span>TRYON
+      </div>
+      <nav class="nav-links" id="main-nav">
+        <button id="nav-btn-home" class="nav-link active">Home</button>
+        <button id="nav-btn-scan" class="nav-link">Scan</button>
+        <button id="nav-btn-history" class="nav-link">History</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Application Body Container -->
+  <main class="app-main">
+
+    <!-- SCREEN 1: ENTRY POINT -->
+    <section id="screen-entry" class="view-screen active">
+      <div class="hero-section">
+        <div class="mannequin-hero-preview">
+          <!-- Elegant SVG mannequin silhouette for loading state -->
+          <svg viewBox="0 0 400 750" class="entry-mannequin-svg" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+            <path d="M 200,40 C 222,40 236,56 236,80 C 236,104 222,118 200,118 C 178,118 164,104 164,80 C 164,56 178,40 200,40 Z M 188,117 L 212,117 C 214,126 218,136 226,140 C 242,148 266,155 278,162 C 285,166 288,172 287,182 L 297,270 C 299,285 298,305 295,335 L 292,375 C 290,390 293,405 296,415 L 294,428 C 291,432 285,432 282,426 L 278,410 C 275,395 274,375 275,350 L 272,250 C 268,230 262,205 258,190 C 255,215 250,240 244,265 C 240,285 244,310 248,335 C 253,355 256,380 252,435 C 248,490 242,540 238,580 C 235,620 234,660 232,695 L 230,715 C 232,720 244,725 252,726 C 258,727 260,732 254,734 C 242,737 222,736 218,730 L 222,700 C 224,660 225,615 224,560 C 223,510 216,460 210,410 C 205,370 200,370 200,370 C 200,370 195,370 190,410 C 184,460 177,510 176,560 C 175,615 176,660 178,700 L 182,730 C 178,736 158,737 146,734 C 140,732 142,727 148,726 C 156,725 168,720 170,715 L 168,695 C 166,660 165,620 162,580 C 158,540 152,490 148,435 C 144,380 147,355 152,335 C 156,310 160,285 156,265 C 150,240 145,215 142,190 C 138,205 132,230 128,250 L 125,350 C 126,375 125,395 122,410 L 118,426 C 115,432 109,432 106,428 L 104,415 C 107,405 110,390 108,375 L 105,335 C 102,305 101,285 103,270 L 113,182 C 112,172 115,166 122,162 C 134,155 158,148 174,140 C 182,136 186,126 188,117 Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="hero-content">
+          <h1>Let's get your measurements.</h1>
+          <p class="subtitle">Take a few guided photos and create your personalized fit profile.</p>
+          
+          <div class="benefits-list">
+            <div class="benefit-item">
+              <span class="benefit-icon">✓</span>
+              <span class="benefit-text">Guided from start to finish</span>
+            </div>
+            <div class="benefit-item">
+              <span class="benefit-icon">✓</span>
+              <span class="benefit-text">No measuring tape required</span>
+            </div>
+            <div class="benefit-item">
+              <span class="benefit-icon">✓</span>
+              <span class="benefit-text">Built for clothing fit</span>
+            </div>
+          </div>
+          
+          <div class="btn-group home-side-by-side-btns">
+            <button id="btn-start-scan" class="btn btn-primary">Scan with Camera</button>
+            <button id="btn-start-upload" class="btn btn-secondary">Upload Photos</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: HOW IT WORKS -->
+    <section id="screen-how-it-works" class="view-screen">
+      <div class="centered-container">
+        <h2>How it works</h2>
+        <p class="section-description">A quick overview of what to expect during your scan.</p>
+        
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-number">01</div>
+            <h3>Position</h3>
+            <p>Stand in front of your phone with your whole body visible.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">02</div>
+            <h3>Follow</h3>
+            <p>We'll guide you through each position and automatically check your framing.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">03</div>
+            <h3>Get measured</h3>
+            <p>Your photos are analyzed to estimate measurements used for clothing fit.</p>
+          </div>
+        </div>
+        
+        <div class="btn-group">
+          <button id="btn-how-start" class="btn btn-primary">Start scan</button>
+          <button id="btn-how-back" class="btn btn-secondary">Back</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: CAMERA PERMISSION -->
+    <section id="screen-camera-permission" class="view-screen">
+      <div class="centered-container card-surface">
+        <div class="permission-icon-container" aria-hidden="true">
+          <svg viewBox="0 0 24 24" class="icon-camera-svg">
+            <path d="M12 15c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm9-8h-3.17L16 5H8L6.17 7H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm-9 12c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" fill="currentColor"/>
+          </svg>
+        </div>
+        
+        <div id="permission-prompt-block">
+          <h2>Camera access</h2>
+          <p class="permission-desc">We use your camera to capture the body photos needed to estimate your measurements.</p>
+          <button id="btn-allow-camera" class="btn btn-primary">Allow camera</button>
+          <button id="btn-permission-back" class="btn btn-secondary">Back</button>
+        </div>
+        
+        <div id="permission-denied-block" class="hidden">
+          <h2 class="error-heading">Camera access is required</h2>
+          <p class="permission-desc">Enable camera access in your browser or device settings to continue.</p>
+          <div class="btn-group">
+            <button id="btn-permission-retry" class="btn btn-primary">Try again</button>
+            <button id="btn-permission-denied-back" class="btn btn-secondary">Back</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: PRE-SCAN PREPARATION -->
+    <section id="screen-preparation" class="view-screen">
+      <div class="centered-container">
+        <h2>Get ready</h2>
+        <p class="section-description">A few small things will help us get the most accurate measurements.</p>
+        
+        <div class="prep-grid">
+          <div class="prep-card">
+            <div class="prep-card-header">
+              <span class="prep-num">01</span>
+              <h3>Clothing</h3>
+            </div>
+            <p>Wear fitted clothing that clearly shows your body shape.</p>
+            <div class="prep-badge-container">
+              <span class="badge badge-good">✓ Leggings</span>
+              <span class="badge badge-good">✓ Fitted T-Shirt</span>
+              <span class="badge badge-bad">✗ Bulky jackets</span>
+            </div>
+          </div>
+          
+          <div class="prep-card">
+            <div class="prep-card-header">
+              <span class="prep-num">02</span>
+              <h3>Lighting</h3>
+            </div>
+            <p>Use bright, even lighting. Avoid backlighting and strong glare.</p>
+          </div>
+          
+          <div class="prep-card">
+            <div class="prep-card-header">
+              <span class="prep-num">03</span>
+              <h3>Background</h3>
+            </div>
+            <p>Stand somewhere with a simple background where your body is easy to see.</p>
+          </div>
+          
+          <div class="prep-card">
+            <div class="prep-card-header">
+              <span class="prep-num">04</span>
+              <h3>Position</h3>
+            </div>
+            <p>Place your phone so your entire body — including head and feet — fits inside the frame.</p>
+          </div>
+        </div>
+
+        <!-- USER METADATA FORM -->
+        <div class="prep-form-card">
+          <h3 class="form-title">Your Fit Profile Details</h3>
+          <p style="font-size: 0.85rem; margin-bottom: 16px;">This metadata allows the AI to correctly map your base bone structure and proportions.</p>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="input-gender">Assigned Gender at Birth</label>
+              <select id="input-gender" required>
+                <option value="" disabled selected>Select gender</option>
+                <option value="female">Female</option>
+                <option value="male">Male</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="input-height">Height (cm)</label>
+              <input type="number" id="input-height" placeholder="e.g., 170" min="100" max="250" step="0.5" required>
+            </div>
+            <div class="form-field">
+              <label for="input-weight">Weight (kg)</label>
+              <input type="number" id="input-weight" placeholder="e.g., 65" min="30" max="200" step="0.5" required>
+            </div>
+            <div class="form-field">
+              <label for="input-age">Age</label>
+              <input type="number" id="input-age" placeholder="e.g., 25" min="1" max="120" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="phone-position-info">
+          <h3>Place your phone</h3>
+          <p>Place your phone on a stable surface. Keep it upright, vertical, and level. Once positioned, you won't need to move it.</p>
+          <div class="phone-pos-visual">
+            <span class="vis-item">Phone</span> <span class="vis-arrow">⟶</span> <span class="vis-item">Stable Surface</span> <span class="vis-arrow">⟶</span> <span class="vis-item">Stand 2-3m away</span>
+          </div>
+        </div>
+        
+        <div class="mode-selection-box margin-top-md">
+          <h3 class="mode-selection-title">Choose Scan Mode</h3>
+          <div class="mode-options-grid">
+            <button id="btn-prep-ready" class="btn btn-primary mode-card-btn">
+              <span class="btn-icon">📷</span>
+              <span class="btn-title">Take Photos (Live Camera)</span>
+              <span class="btn-sub">Guided real-time camera scan</span>
+            </button>
+            <button id="btn-prep-upload" class="btn btn-secondary mode-card-btn">
+              <span class="btn-icon">📁</span>
+              <span class="btn-title">Upload Photos Instead</span>
+              <span class="btn-sub">Select existing Front & Side photos</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="btn-group prep-bottom-btn margin-top-md">
+          <button id="btn-prep-back" class="btn btn-secondary">Back</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4B: PHOTO UPLOADER SCAN WORKFLOW -->
+    <section id="screen-upload-scan" class="view-screen">
+      <div class="screen-content card-surface upload-scan-card">
+        <h2 class="section-title">Upload Body Measurement Photos</h2>
+        <p class="section-subtitle">Provide existing full-body Front and Side view photos from your device.</p>
+
+        <!-- Upload Step Progress Tracker -->
+        <div class="scan-progress-tracker upload-tracker">
+          <div class="tracker-step active" id="upload-step-front">1. Front Photo</div>
+          <div class="tracker-step-connector"></div>
+          <div class="tracker-step" id="upload-step-side">2. Side Photo</div>
+          <div class="tracker-step-connector"></div>
+          <div class="tracker-step" id="upload-step-complete">3. Calculate</div>
+        </div>
+
+        <!-- STEP 1: FRONT PHOTO UPLOAD PANEL -->
+        <div id="panel-upload-front" class="upload-panel-step">
+          <div class="upload-guide-card card-surface">
+            <h3>📷 Front View Photo Guidelines</h3>
+            <ul class="upload-requirements-list">
+              <li>✓ Face the camera directly in a natural upright posture</li>
+              <li>✓ Entire body visible from head to feet</li>
+              <li>✓ Keep arms slightly away from your body</li>
+              <li>✓ Stand straight with legs naturally aligned</li>
+              <li>✓ Good lighting without harsh shadows or reflections</li>
+              <li>✓ Single person only in the frame</li>
+            </ul>
+          </div>
+
+          <div class="upload-dropzone card-surface" id="dropzone-front">
+            <input type="file" id="input-upload-front" accept="image/*" class="hidden">
+            <div id="front-empty-state" class="upload-state-content">
+              <div class="upload-icon">📤</div>
+              <p>Select a Front-facing full body photo</p>
+              <button id="btn-trigger-front" class="btn btn-primary">Choose Front Photo</button>
+            </div>
+            <div id="front-preview-state" class="upload-preview-content hidden">
+              <img id="preview-upload-front" src="" alt="Front photo preview">
+              <div id="badge-upload-front" class="review-status-badge">Checking photo...</div>
+            </div>
+          </div>
+
+          <div id="front-feedback-msg" class="upload-feedback-card hidden"></div>
+
+          <div class="btn-group margin-top-lg">
+            <button id="btn-front-next" class="btn btn-primary disabled" disabled>Next: Side Photo</button>
+            <button id="btn-upload-cancel" class="btn btn-secondary">Cancel</button>
+          </div>
+        </div>
+
+        <!-- STEP 2: SIDE PHOTO UPLOAD PANEL -->
+        <div id="panel-upload-side" class="upload-panel-step hidden">
+          <div class="upload-guide-card card-surface">
+            <h3>📷 Side View Photo Guidelines</h3>
+            <ul class="upload-requirements-list">
+              <li>✓ Turn approximately 90° to your side profile</li>
+              <li>✓ Entire body visible from head to feet</li>
+              <li>✓ Stand upright in a natural position</li>
+              <li>✓ Keep arms slightly away from torso</li>
+              <li>✓ Keep legs straight with feet visible</li>
+              <li>✓ Good lighting without dark shadows</li>
+            </ul>
+          </div>
+
+          <div class="upload-dropzone card-surface" id="dropzone-side">
+            <input type="file" id="input-upload-side" accept="image/*" class="hidden">
+            <div id="side-empty-state" class="upload-state-content">
+              <div class="upload-icon">📤</div>
+              <p>Select a Side-profile full body photo</p>
+              <button id="btn-trigger-side" class="btn btn-primary">Choose Side Photo</button>
+            </div>
+            <div id="side-preview-state" class="upload-preview-content hidden">
+              <img id="preview-upload-side" src="" alt="Side photo preview">
+              <div id="badge-upload-side" class="review-status-badge">Checking photo...</div>
+            </div>
+          </div>
+
+          <div id="side-feedback-msg" class="upload-feedback-card hidden"></div>
+
+          <div class="btn-group margin-top-lg">
+            <button id="btn-side-back" class="btn btn-secondary">Back to Front Photo</button>
+            <button id="btn-upload-calculate" class="btn btn-primary disabled" disabled>Calculate Measurements</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 5: CAMERA STREAM SCANNER -->
+    <section id="screen-camera-scan" class="view-screen camera-view-active">
+      <div class="scan-wrapper">
+        <!-- Live Video Element -->
+        <video id="scan-video" autoplay playsinline muted></video>
+        
+        <!-- UI Overlay drawing vector guide (Silhouette and markers) -->
+        <canvas id="scan-overlay"></canvas>
+        
+        <!-- Scanning Status HUD -->
+        <div class="scan-hud-top">
+          <div class="scan-progress-tracker">
+            <div class="tracker-step" id="hud-step-front">Front</div>
+            <div class="tracker-step-connector"></div>
+            <div class="tracker-step" id="hud-step-side">Side</div>
+            <div class="tracker-step-connector"></div>
+            <div class="tracker-step" id="hud-step-complete">Complete</div>
+          </div>
+          <div id="hud-visual-status-pill" class="visual-status-pill status-adjusting">● Searching for body</div>
+          <div id="hud-tracking-confidence" class="hud-confidence-meter">
+            <span class="confidence-label">TRACKING</span>
+            <div class="confidence-dots" id="confidence-dots">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+            <span class="confidence-val" id="confidence-value">0%</span>
+          </div>
+          <button id="btn-scan-cancel" class="btn-hud-cancel" aria-label="Cancel scan">✕</button>
+        </div>
+        
+        <!-- Scan dynamic overlay instructions -->
+        <div class="scan-hud-bottom">
+          <div class="hud-photo-counter" id="hud-photo-index">PHOTO 1 OF 2</div>
+          <div class="hud-instruction" id="hud-instruction-text">Positioning phone...</div>
+          
+          <div class="hud-checklist card-surface" id="hud-checklist-panel">
+            <div class="hud-check-item" id="chk-person">Person detected</div>
+            <div class="hud-check-item" id="chk-fullbody">Full body visible</div>
+            <div class="hud-check-item" id="chk-standing">Standing upright</div>
+            <div class="hud-check-item" id="chk-orientation">Facing direction</div>
+            <div class="hud-check-item" id="chk-stability">Holding still</div>
+          </div>
+        </div>
+
+        <!-- Audio toggle button -->
+        <button id="btn-toggle-voice" class="btn-voice-toggle active" aria-label="Toggle voice guidance">
+          <span class="voice-icon">🔊</span> Voice Guidance On
+        </button>
+
+        <!-- Big Countdown Overlay -->
+        <div id="scan-countdown-overlay" class="countdown-overlay hidden">
+          <span id="countdown-number">3</span>
+        </div>
+
+        <!-- Camera Flash Overlay -->
+        <div id="camera-flash" class="flash-overlay hidden"></div>
+
+        <!-- Camera Hardware / Permission Error Overlay -->
+        <div id="camera-error-banner" class="camera-error-overlay hidden">
+          <div class="camera-error-card card-surface">
+            <div class="error-icon">📷</div>
+            <h3>Camera Access Required</h3>
+            <p id="camera-error-text">Unable to access your live camera preview. Please allow camera permissions and try again.</p>
+            <div class="error-btn-group">
+              <button id="btn-camera-retry" class="btn btn-primary">Retry Camera</button>
+              <button id="btn-camera-demo" class="btn btn-secondary">Simulation Mode</button>
+              <button id="btn-camera-exit" class="btn btn-secondary">Exit Scan</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Photo Review Modal Overlay -->
+        <div id="photo-review-modal" class="photo-review-modal hidden">
+          <div class="review-card card-surface">
+            <h3 id="review-title">Review Captured View</h3>
+            <p class="review-subtitle" id="review-subtitle">Ensure your full body is visible and posture is straight.</p>
+            <div class="review-preview-container">
+              <img id="review-image-preview" src="" alt="Captured scan preview">
+              <div id="review-badge-status" class="review-status-badge review-badge-success">✓ Measurement Pose Verified</div>
+            </div>
+            <div class="review-btn-group">
+              <button id="btn-review-use" class="btn btn-primary">Use Photo</button>
+              <button id="btn-review-retake" class="btn btn-secondary">Retake</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 6: PROCESSING DATA -->
+    <section id="screen-processing" class="view-screen">
+      <div class="centered-container">
+        <h2 id="proc-main-title">Analyzing your scan…</h2>
+        
+        <div id="processing-anim-box" class="processing-animation-container">
+          <div class="progress-ring-outer">
+            <div class="progress-ring-inner"></div>
+          </div>
+          <div class="progress-percent" id="processing-percent">0%</div>
+        </div>
+        
+        <div id="processing-steps-box" class="processing-steps-list">
+          <div class="proc-step active" id="proc-step-1">Analyzing your scan…</div>
+          <div class="proc-step" id="proc-step-2">Calculating your measurements…</div>
+          <div class="proc-step" id="proc-step-3">Creating your scan summary…</div>
+        </div>
+
+        <div id="processing-error-container" class="processing-error-box hidden margin-top-md">
+          <div class="error-icon">⚠️</div>
+          <h3 class="error-title" id="processing-error-title">Something went wrong while calculating your measurements.</h3>
+          <p id="processing-error-message" class="error-msg-text">Please try the scan again.</p>
+          <div class="error-action-btns margin-top-sm">
+            <button id="btn-proc-retry" class="btn btn-primary">Try Again</button>
+            <button id="btn-proc-rescan" class="btn btn-secondary">Retake Scan</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 7: FIT PROFILE & MEASUREMENT RESULTS (SUMMARY SCREEN) -->
+    <section id="screen-fit-profile" class="view-screen">
+      <div class="results-layout-grid">
+        
+        <!-- Measurement Summary & Interactive Cards -->
+        <div class="summary-column">
+          <div class="summary-header-card card-surface">
+            <div class="summary-title-row">
+              <div>
+                <h2>Your Fit Profile</h2>
+                <p class="summary-desc">Precise body measurements calculated from your scan.</p>
+              </div>
+              <div class="header-right-actions">
+                <span id="val-confidence-level" class="conf-high">Scan Quality: Excellent</span>
+                <div class="unit-toggle-header">
+                  <button id="btn-unit-cm" class="btn-unit active">CM</button>
+                  <button id="btn-unit-in" class="btn-unit">IN</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dashboard Navigation Tabs -->
+            <div class="dashboard-tabs">
+              <button id="tab-btn-body" class="tab-btn active">Body Measurements</button>
+              <button id="tab-btn-garment" class="tab-btn">Garment Ease Explorer</button>
+              <button id="tab-btn-history-list" class="tab-btn">Saved Profiles</button>
+            </div>
+          </div>
+
+          <!-- Selected Measurement Hotspot Callout Panel -->
+          <div class="measurement-detail-panel card-surface" id="detail-side-panel">
+            <h3 id="detail-name">Select a measurement</h3>
+            <div class="detail-value-row">
+              <span class="detail-val-number" id="detail-value">—</span>
+              <span class="detail-val-unit" id="detail-unit">cm</span>
+            </div>
+            <p class="detail-desc" id="detail-description">Click any measurement row below to explore how it affects clothing fit.</p>
+            <div id="detail-uses-container" class="detail-uses-box hidden margin-top-xs">
+              <span class="detail-uses-label">Sizing applications:</span>
+              <ul id="detail-uses-list" class="detail-uses-pills"></ul>
+            </div>
+          </div>
+
+          <!-- BODY MEASUREMENTS SUMMARY LIST -->
+          <div class="tab-content active" id="tab-content-body">
+            <div class="summary-list">
+              <div class="summary-row" data-measurement="height">
+                <span class="summary-name">Height</span>
+                <span class="summary-value" id="val-height">—</span>
+              </div>
+              <div class="summary-row" data-measurement="neck">
+                <span class="summary-name">Neck</span>
+                <span class="summary-value" id="val-neck">—</span>
+              </div>
+              <div class="summary-row" data-measurement="shoulderWidth">
+                <span class="summary-name">Shoulder</span>
+                <span class="summary-value" id="val-shoulderWidth">—</span>
+              </div>
+              <div class="summary-row" data-measurement="chest">
+                <span class="summary-name">Chest / Bust</span>
+                <span class="summary-value" id="val-chest">—</span>
+              </div>
+              <div class="summary-row" data-measurement="waist">
+                <span class="summary-name">Waist</span>
+                <span class="summary-value" id="val-waist">—</span>
+              </div>
+              <div class="summary-row" data-measurement="hip">
+                <span class="summary-name">Hip</span>
+                <span class="summary-value" id="val-hip">—</span>
+              </div>
+              <div class="summary-row" data-measurement="upperArm">
+                <span class="summary-name">Upper Arm</span>
+                <span class="summary-value" id="val-upperArm">—</span>
+              </div>
+              <div class="summary-row" data-measurement="armLength">
+                <span class="summary-name">Arm Length</span>
+                <span class="summary-value" id="val-armLength">—</span>
+              </div>
+              <div class="summary-row" data-measurement="wrist">
+                <span class="summary-name">Wrist</span>
+                <span class="summary-value" id="val-wrist">—</span>
+              </div>
+              <div class="summary-row" data-measurement="thigh">
+                <span class="summary-name">Thigh</span>
+                <span class="summary-value" id="val-thigh">—</span>
+              </div>
+              <div class="summary-row" data-measurement="knee">
+                <span class="summary-name">Knee</span>
+                <span class="summary-value" id="val-knee">—</span>
+              </div>
+              <div class="summary-row" data-measurement="calf">
+                <span class="summary-name">Calf</span>
+                <span class="summary-value" id="val-calf">—</span>
+              </div>
+              <div class="summary-row" data-measurement="ankle">
+                <span class="summary-name">Ankle</span>
+                <span class="summary-value" id="val-ankle">—</span>
+              </div>
+              <div class="summary-row" data-measurement="inseam">
+                <span class="summary-name">Inseam</span>
+                <span class="summary-value" id="val-inseam">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+          <!-- TAB 2 CONTENT: GARMENT FIT COMPARISON -->
+          <div class="tab-content" id="tab-content-garment">
+            <div class="garment-info-card card-surface">
+              <h3>Body vs. Garment Measurements</h3>
+              <p class="card-p"><strong>Body measurements</strong> describe your exact shapes and contours. <strong>Garment measurements</strong> describe how a piece of clothing is constructed to fit around you, including ease/stretch parameters.</p>
+            </div>
+            
+            <div class="garment-fit-calculator">
+              <h3>Simulated Garment Ease Explorer</h3>
+              <p class="section-description">Select a clothing category to estimate correct garment widths based on your body profile.</p>
+              
+              <div class="garment-type-selector">
+                <button class="btn-garment-select active" data-category="shirt">Shirt / Top</button>
+                <button class="btn-garment-select" data-category="jacket">Jacket / Outerwear</button>
+                <button class="btn-garment-select" data-category="trousers">Trousers / Pants</button>
+              </div>
+
+              <div class="garment-ease-outputs card-surface">
+                <h4 id="garment-output-title">Garment Shirt Specifications</h4>
+                <div class="ease-output-list">
+                  <div class="ease-row">
+                    <span>Target Chest Width (Garment)</span>
+                    <span id="garment-calc-chest">—</span>
+                  </div>
+                  <div class="ease-row">
+                    <span>Target Waist Width (Garment)</span>
+                    <span id="garment-calc-waist">—</span>
+                  </div>
+                  <div class="ease-row">
+                    <span>Sleeve Length (Garment)</span>
+                    <span id="garment-calc-sleeve">—</span>
+                  </div>
+                  <div class="ease-row">
+                    <span>Recommended Standard Ease</span>
+                    <span id="garment-calc-ease">+ 5.0 cm (Relaxed)</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="fit-engine-teaser card-surface">
+                <h4>Future Fit Engine Integration</h4>
+                <p>A brand size chart comparison service can compare these target measurements to specific catalog items to output sizing recommendations (e.g. "Your Best Fit: Size M").</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3 CONTENT: SCAN HISTORY LIST -->
+          <div class="tab-content" id="tab-content-history-list">
+            <div class="history-list-wrapper">
+              <h3>Previous Fit Profiles</h3>
+              <div id="history-items-container">
+                <!-- Dynamically populated rows -->
+                <p class="history-empty">No previous scans found. Save this scan to start your history.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom CTA Area -->
+          <div class="dashboard-footer-actions">
+            <button id="btn-save-profile" class="btn btn-primary">Save Fit Profile</button>
+            <button id="btn-retake-scan" class="btn btn-secondary">Retake Scan</button>
+          </div>
+          
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Confirm Retake Dialog modal -->
+  <dialog id="dialog-confirm-retake" class="modal-dialog">
+    <div class="dialog-content card-surface">
+      <h3>Want to try again?</h3>
+      <p>Better phone positioning, posture, fitted clothing, or brighter lighting can improve your body scan measurement quality.</p>
+      <div class="dialog-buttons">
+        <button id="btn-confirm-retake-yes" class="btn btn-primary">Retake</button>
+        <button id="btn-confirm-retake-no" class="btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Scripts -->
+  <script src="js/voice.js"></script>
+  <script src="js/scan-quality-engine.js"></script>
+  <script src="js/camera.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTRYON — Technical Architecture & Documentation</title>
+  
+  <!-- Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    @page {
+      size: A4;
+      margin: 20mm 15mm;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #1e1b4b;
+      line-height: 1.6;
+      font-size: 11pt;
+      padding: 40px;
+      max-width: 960px;
+      margin: 0 auto;
+      background: #f8fafc;
+    }
+
+    .doc-container {
+      background: #ffffff;
+      padding: 50px 60px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+    }
+    
+    .toolbar {
+      position: sticky;
+      top: 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-bottom: 30px;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(8px);
+      padding: 12px 20px;
+      border-radius: 40px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border: 1px solid #e2e8f0;
+    }
+    
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    
+    .btn-pdf {
+      background: #4f46e5;
+      color: #ffffff;
+    }
+    .btn-pdf:hover {
+      background: #4338ca;
+    }
+    
+    .btn-print {
+      background: #f1f5f9;
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+    }
+    .btn-print:hover {
+      background: #e2e8f0;
+    }
+
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 26pt;
+      color: #0f172a;
+      border-bottom: 3px solid #6366f1;
+      padding-bottom: 12px;
+      margin-top: 10px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    
+    h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 17pt;
+      color: #1e1b4b;
+      border-bottom: 1.5px solid #e2e8f0;
+      padding-bottom: 8px;
+      margin-top: 36px;
+      font-weight: 600;
+    }
+    
+    h3 {
+      font-size: 13.5pt;
+      color: #334155;
+      margin-top: 24px;
+      font-weight: 600;
+    }
+    
+    code {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-size: 9.5pt;
+    }
+    
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 18px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 9pt;
+      line-height: 1.5;
+    }
+    
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    
+    blockquote {
+      border-left: 4px solid #6366f1;
+      background: #f8fafc;
+      margin: 20px 0;
+      padding: 14px 20px;
+      color: #334155;
+      border-radius: 0 8px 8px 0;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 10pt;
+    }
+    
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    
+    th {
+      background: #f1f5f9;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    
+    tr:nth-child(even) {
+      background: #f8fafc;
+    }
+    
+    hr {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 36px 0;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        padding: 0;
+        margin: 0;
+      }
+      .doc-container {
+        box-shadow: none;
+        padding: 0;
+      }
+      .toolbar {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <a href="/PROJECT_EXPLANATION.pdf" download="UTRYON_Technical_Documentation.pdf" class="btn-action btn-pdf">
+      <span>📥</span> Download PDF Document
+    </a>
+    <button onclick="window.print()" class="btn-action btn-print">
+      <span>🖨️</span> Print / Save PDF
+    </button>
+  </div>
+
+  <div class="doc-container">
+    <h1>UTRYON — AI Body Scan & Digital Fit Profile Application</h1>
+    <p><strong>Technical Documentation & Architecture Guide</strong></p>
+    <p><em>Comprehensive architectural breakdown, computer vision algorithms, and state machine specs.</em></p>
+    
+    <hr>
+
+    <h2>1. Project Overview & Core Value Proposition</h2>
+    <h3>What is UTRYON?</h3>
+    <p>UTRYON is a client-first, web-based AI body measurement application. It allows users to capture or upload two full-body photos (one <strong>Front View</strong> and one <strong>Side View</strong>) to automatically compute <strong>13+ anatomical body circumference and length measurements</strong> (such as chest, waist, hips, shoulder width, arm length, inseam, etc.) without requiring a physical measuring tape.</p>
+    
+    <h3>Core Goals & Features:</h3>
+    <ul>
+      <li><strong>Guided Real-Time Camera Scan</strong>: Uses device cameras to track posture live with a skeletal overlay and voice guidance.</li>
+      <li><strong>5-Point Computer Vision Validation</strong>: Verifies person detection, full body framing, upright posture, 90° side profile turn, and 1.0s stability.</li>
+      <li><strong>Photo Upload Mode</strong>: Enables photo upload with automated quality checks.</li>
+      <li><strong>Dual Provider Backend</strong>: Supports both local Statistical Regression Mock Mode and production Bodygram REST API integration.</li>
+      <li><strong>Resilient Offline Fallback</strong>: Seamless client-side computation fallback if network drops.</li>
+      <li><strong>Interactive 3D Fit Dashboard & Garment Ease Explorer</strong>: Metric/Imperial conversions and clothing ease calculators.</li>
+    </ul>
+
+    <h2>2. System Architecture Overview</h2>
+    <pre><code>+-------------------------------------------------------+
+|                      BROWSER (SPA)                    |
+|  +--------------------+    +-----------------------+  |
+|  |    index.html      |    |       index.css       |  |
+|  +---------+----------+    +-----------+-----------+  |
+|            |                           |              |
+|            v                           v              |
+|  +-------------------------------------------------+  |
+|  |               AppController (app.js)            |  |
+|  +----+-----------------+------------------+-------+  |
+|       |                 |                  |          |
+|       v                 v                  v          |
+|  +----------+   +---------------+   +--------------+  |
+|  | Camera   |   | Scan Quality  |   | Voice Engine |  |
+|  | Manager  |   | Engine        |   | (Web Speech) |  |
+|  +----+-----+   +-------+-------+   +--------------+  |
++-------|-----------------|-----------------------------+
+        v                 v
++-------------------------------------------------------+
+|                     BACKEND SERVER                    |
+|                       (server.js)                     |
++-------------------------------------------------------+</code></pre>
+
+    <h2>3. Document Downloads</h2>
+    <blockquote>
+      <p>This technical whitepaper is available in standard <strong>PDF Format</strong> and <strong>Markdown Source Format</strong> for presentation, offline distribution, and team documentation.</p>
+    </blockquote>
+
+    <ul>
+      <li><strong>PDF Download</strong>: <a href="/PROJECT_EXPLANATION.pdf" download="UTRYON_Technical_Documentation.pdf">Download UTRYON_Technical_Documentation.pdf</a></li>
+      <li><strong>Markdown File</strong>: <a href="/PROJECT_EXPLANATION.md" download="PROJECT_EXPLANATION.md">Download PROJECT_EXPLANATION.md</a></li>
+    </ul>
+  </div>
+
+</body>
+</html>

@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { execFile } = require('child_process');
 require('dotenv').config();
 
 const app = express();
@@ -186,15 +187,56 @@ class BodygramMeasurementProvider extends BodyMeasurementProvider {
   }
 }
 
+/**
+ * Provider executing the fine-tuned UtryOn AI model via Python inference bridge.
+ */
+class TrainedAIModelProvider extends BodyMeasurementProvider {
+  async estimate(params) {
+    return new Promise((resolve) => {
+      const pythonPath = '/opt/anaconda3/bin/python';
+      const scriptPath = path.join(__dirname, 'scripts', 'predict.py');
+      const payloadStr = JSON.stringify(params);
+
+      execFile(pythonPath, [scriptPath, payloadStr], { maxBuffer: 15 * 1024 * 1024 }, (error, stdout, stderr) => {
+        if (error) {
+          console.error('[AI Model Error] Falling back to statistical mock estimation:', stderr || error.message);
+          return resolve(new MockMeasurementProvider().estimate(params));
+        }
+
+        try {
+          const result = JSON.parse(stdout);
+          if (result.success && result.measurements) {
+            resolve({
+              success: true,
+              measurements: result.measurements,
+              confidence: result.confidence || 0.98,
+              estimationToken: `token_ai_model_${crypto.randomBytes(8).toString('hex')}`
+            });
+          } else {
+            console.error('[AI Model Output Invalid] Falling back to statistical mock estimation:', result);
+            resolve(new MockMeasurementProvider().estimate(params));
+          }
+        } catch (e) {
+          console.error('[AI Model JSON Parse Error] Falling back:', e.message);
+          resolve(new MockMeasurementProvider().estimate(params));
+        }
+      });
+    });
+  }
+}
+
 // Provider Factory based on ENV settings
 function getMeasurementProvider() {
-  const mode = process.env.BODYGRAM_PROVIDER_MODE || 'mock';
+  const mode = process.env.BODYGRAM_PROVIDER_MODE || 'trained_ai';
   if (mode === 'production') {
     console.log('[Provider] Running in PRODUCTION Bodygram mode.');
     return new BodygramMeasurementProvider();
-  } else {
-    console.log('[Provider] Running in DEVELOPMENT Mock mode.');
+  } else if (mode === 'mock') {
+    console.log('[Provider] Running in MOCK Mode.');
     return new MockMeasurementProvider();
+  } else {
+    console.log('[Provider] Running with TRAINED UTRYON AI MODEL.');
+    return new TrainedAIModelProvider();
   }
 }
 

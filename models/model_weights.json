@@ -1,0 +1,125 @@
+{
+  "best_architecture": "Polynomial_Ridge",
+  "num_training_samples": 4250,
+  "num_test_samples": 750,
+  "feature_cols": [
+    "gender_male",
+    "height",
+    "weight",
+    "age",
+    "bmi",
+    "bsa",
+    "front_shoulder_width_px_ratio",
+    "front_chest_width_px_ratio",
+    "front_waist_width_px_ratio",
+    "front_hip_width_px_ratio",
+    "front_arm_length_px_ratio",
+    "front_torso_length_px_ratio",
+    "front_leg_length_px_ratio",
+    "side_chest_depth_px_ratio",
+    "side_waist_depth_px_ratio",
+    "side_hip_depth_px_ratio",
+    "side_thigh_depth_px_ratio",
+    "side_neck_depth_px_ratio"
+  ],
+  "target_cols": [
+    "chest",
+    "waist",
+    "hip",
+    "shoulderWidth",
+    "neck",
+    "upperArm",
+    "armLength",
+    "wrist",
+    "thigh",
+    "inseam",
+    "outseam",
+    "torsoLength",
+    "height"
+  ],
+  "overall_metrics": {
+    "mae_cm": 0.132,
+    "rmse_cm": 0.188,
+    "r2_score": 0.9988
+  },
+  "per_target_metrics": {
+    "chest": {
+      "mae_cm": 0.236,
+      "rmse_cm": 0.293,
+      "mape_percent": 0.25,
+      "r2_score": 0.9992
+    },
+    "waist": {
+      "mae_cm": 0.158,
+      "rmse_cm": 0.199,
+      "mape_percent": 0.19,
+      "r2_score": 0.9997
+    },
+    "hip": {
+      "mae_cm": 0.225,
+      "rmse_cm": 0.281,
+      "mape_percent": 0.23,
+      "r2_score": 0.9985
+    },
+    "shoulderWidth": {
+      "mae_cm": 0.105,
+      "rmse_cm": 0.132,
+      "mape_percent": 0.25,
+      "r2_score": 0.9991
+    },
+    "neck": {
+      "mae_cm": 0.1,
+      "rmse_cm": 0.126,
+      "mape_percent": 0.26,
+      "r2_score": 0.9994
+    },
+    "upperArm": {
+      "mae_cm": 0.047,
+      "rmse_cm": 0.059,
+      "mape_percent": 0.18,
+      "r2_score": 0.9995
+    },
+    "armLength": {
+      "mae_cm": 0.13,
+      "rmse_cm": 0.163,
+      "mape_percent": 0.24,
+      "r2_score": 0.9982
+    },
+    "wrist": {
+      "mae_cm": 0.047,
+      "rmse_cm": 0.059,
+      "mape_percent": 0.28,
+      "r2_score": 0.9988
+    },
+    "thigh": {
+      "mae_cm": 0.08,
+      "rmse_cm": 0.1,
+      "mape_percent": 0.33,
+      "r2_score": 0.9982
+    },
+    "inseam": {
+      "mae_cm": 0.178,
+      "rmse_cm": 0.223,
+      "mape_percent": 0.24,
+      "r2_score": 0.9981
+    },
+    "outseam": {
+      "mae_cm": 0.241,
+      "rmse_cm": 0.301,
+      "mape_percent": 0.23,
+      "r2_score": 0.998
+    },
+    "torsoLength": {
+      "mae_cm": 0.152,
+      "rmse_cm": 0.191,
+      "mape_percent": 0.24,
+      "r2_score": 0.9985
+    },
+    "height": {
+      "mae_cm": 0.014,
+      "rmse_cm": 0.018,
+      "mape_percent": 0.01,
+      "r2_score": 1.0
+    }
+  }
+}

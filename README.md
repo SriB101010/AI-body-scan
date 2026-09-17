@@ -18,19 +18,7 @@ Browser APIs: Camera, Canvas, Web Speech, Web Audio
 Backend: Node.js, Express.js, REST APIs
 Data: JSON persistence
 Production API: Bodygram REST API
-Architecture
-Camera / Upload
-      ↓
-MediaPipe Pose
-      ↓
-Scan Quality Validation
-      ↓
-Front + Side Photos
-      ↓
-Backend Measurement Provider
-      ↓
-Body Measurements
-      ↓
-3D Fit Profile + Garment Ease
+Architecture:
+Camera / Upload > MediaPipe Pose > Scan Quality Validation > Front + Side Photos > Backend Measurement Provider > Body Measurements > 3D Fit Profile + Garment Ease
 
 
